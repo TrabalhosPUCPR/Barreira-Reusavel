@@ -7,6 +7,7 @@ public class Trabalhadora extends Thread {
 
     private static int nTrabalhadores = 1;
     private int nOutputs = 0;
+    private int timesToRun;
     private final int nTrabalhador;
     private final Semaphore semaphore, combinatorSemaphore;
     private final ArrayList<Semaphore> rendezvousSemaphores;
@@ -14,7 +15,9 @@ public class Trabalhadora extends Thread {
     private final ArrayList<String> filesPaths;
     private final int NAmount, MaxNumber;
 
-    public Trabalhadora(Semaphore semaphore, ArrayList<Semaphore> rendezvousSemaphores, Semaphore combinatorSemaphore, String fileOutputDirectory, ArrayList<String> files, int NAmount, int MaxNumber) {
+    private final String tempDirectory = "/tmp";
+
+    public Trabalhadora(Semaphore semaphore, ArrayList<Semaphore> rendezvousSemaphores, Semaphore combinatorSemaphore, String fileOutputDirectory, ArrayList<String> files, int NAmount, int MaxNumber, int timesToRun) {
         this.nTrabalhador = nTrabalhadores;
         nTrabalhadores++;
         this.semaphore = semaphore;
@@ -24,14 +27,19 @@ public class Trabalhadora extends Thread {
         this.filesPaths = files;
         this.NAmount = NAmount;
         this.MaxNumber = MaxNumber;
+        this.timesToRun = timesToRun;
+        File directoriesCreator = new File(outputFileDirectory + tempDirectory);
+        directoriesCreator.mkdir();
+        directoriesCreator = new File(outputFileDirectory);
+        directoriesCreator.mkdir();
     }
 
     @Override
     public void run() {
-        while (true) {
+        while (timesToRun != 0) {
             this.nOutputs++;
             System.out.println("Trabalhador " + this.nTrabalhador + ": criando arquivo temporario: " + this.nOutputs);
-            File tempFile = new File(outputFileDirectory + "/tmp/temp_" + this.nTrabalhador + "_" + this.nOutputs + ".txt");
+            File tempFile = new File(outputFileDirectory + tempDirectory + "/temp_" + this.nTrabalhador + "_" + this.nOutputs + ".txt");
             try {
                 tempFile.createNewFile();
                 FileWriter writer = new FileWriter(tempFile);
@@ -84,6 +92,7 @@ public class Trabalhadora extends Thread {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
+            this.timesToRun--;
         }
     }
 
