@@ -9,13 +9,15 @@ public class Combinadora extends Thread{
     private final String outputPath;
     private final ArrayList<Semaphore> threadsToWait;
     private int timesToRun;
+    private final boolean removeDuplicate;
 
-    public Combinadora(Semaphore semaphore, ArrayList<String> filesToMerge, String outputPath, ArrayList<Semaphore> threadsToWait, int timesToRun) {
+    public Combinadora(Semaphore semaphore, ArrayList<String> filesToMerge, String outputPath, ArrayList<Semaphore> threadsToWait, int timesToRun, boolean removeDuplicate) {
         this.semaphore = semaphore;
         this.filesToMerge = filesToMerge;
         this.outputPath = outputPath;
         this.threadsToWait = threadsToWait;
         this.timesToRun = timesToRun;
+        this.removeDuplicate = removeDuplicate;
         File directoryCreator = new File(outputPath);
         directoryCreator.mkdir();
     }
@@ -53,11 +55,15 @@ public class Combinadora extends Thread{
                 for(int i = 0; i < bufferedReaders.length; i++){
                     numbers[i] = Integer.parseInt(bufferedReaders[i].readLine());
                 }
-
-                boolean loop = true;
+                int lastChosenNumber = Integer.MAX_VALUE;
                 while (true){
                     int chosenLowest = pickLowestNumber(numbers);
-                    writer.write(numbers[chosenLowest] + "\n");
+
+                    if(this.removeDuplicate && lastChosenNumber != numbers[chosenLowest]){
+                        writer.write(numbers[chosenLowest] + "\n");
+                    }
+                    lastChosenNumber = numbers[chosenLowest];
+
                     if(bufferedReaders[chosenLowest].ready()){
                         numbers[chosenLowest] = Integer.parseInt(bufferedReaders[chosenLowest].readLine());
                     }else{

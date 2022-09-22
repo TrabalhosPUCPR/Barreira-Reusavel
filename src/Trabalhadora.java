@@ -28,9 +28,9 @@ public class Trabalhadora extends Thread {
         this.NAmount = NAmount;
         this.MaxNumber = MaxNumber;
         this.timesToRun = timesToRun;
-        File directoriesCreator = new File(outputFileDirectory + tempDirectory);
+        File directoriesCreator = new File(outputFileDirectory);
         directoriesCreator.mkdir();
-        directoriesCreator = new File(outputFileDirectory);
+        directoriesCreator = new File(outputFileDirectory + tempDirectory);
         directoriesCreator.mkdir();
     }
 
@@ -53,25 +53,25 @@ public class Trabalhadora extends Thread {
             }
 
             System.out.println("Trabalhador " + this.nTrabalhador + ": lendo os numeros gerados no arquivo: " + this.nOutputs);
-            int[] numbers = new int[this.NAmount];
+            int[] numbersQueue = new int[this.NAmount];
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(tempFile));
                 for (int i = 0; reader.ready(); i++) {
-                    numbers[i] = Integer.parseInt(reader.readLine());
+                    numbersQueue[i] = Integer.parseInt(reader.readLine());
                 }
             } catch (IOException e) {
                 throw new RuntimeException("Erro ao ler os arquivos temporarios: "  + this.nOutputs + ": " + e);
             }
 
             System.out.println("Trabalhador " + this.nTrabalhador + ": ordenando numeros dentro do arquivo gerado:" + this.nOutputs);
-            heapsort(numbers);
+            heapsort(numbersQueue);
 
             System.out.println("Trabalhador " + this.nTrabalhador + ": inserindo numeros ordenados dentro de novo arquivo: " + this.nOutputs);
             File outputFile = new File(this.outputFileDirectory + "/output_" + this.nTrabalhador + "_" + this.nOutputs + ".txt");
             try {
                 outputFile.createNewFile();
                 FileWriter writer = new FileWriter(outputFile);
-                for (int i : numbers) {
+                for (int i : numbersQueue) {
                     writer.write(i + "\n");
                 }
                 writer.close();
@@ -107,7 +107,7 @@ public class Trabalhadora extends Thread {
         }
     }
 
-    private static int[] heapsort(int[] arr) {
+    private static void heapsort(int[] arr) {
         int n = arr.length;
         for (int i = n / 2 - 1; i >= 0; i--) heapify(arr, n, i);
         for (int i = n - 1; i > 0; i--) {
@@ -116,7 +116,6 @@ public class Trabalhadora extends Thread {
             arr[i] = temp;
             heapify(arr, i, 0);
         }
-        return arr;
     }
 
     private static void heapify(int arr[], int n, int i) {
