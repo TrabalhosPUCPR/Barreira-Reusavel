@@ -45,7 +45,7 @@ public class Trabalhadora extends Thread {
                 FileWriter writer = new FileWriter(tempFile);
                 for (int i = 0; i < NAmount; i++) {
                     Random r = new Random();
-                    writer.write(r.nextInt(this.MaxNumber) + "\n");
+                    writer.write(r.nextInt(this.MaxNumber+1) + "\n");
                 }
                 writer.close();
             } catch (IOException e) {
